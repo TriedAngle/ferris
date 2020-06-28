@@ -1,29 +1,16 @@
 use dotenv;
 use serenity::client::Client;
-use serenity::model::channel::Message;
-use serenity::prelude::{EventHandler, Context};
+use serenity::prelude::{EventHandler};
 use serenity::framework::standard::{
     StandardFramework,
-    CommandResult,
-    macros::{
-        command,
-        group
-    }
 };
 
-#[group]
-#[commands(ping)]
-struct General;
+mod math;
+mod utils;
 
 struct Handler;
 
 impl EventHandler for Handler { }
-
-#[command]
-fn ping(ctx: &mut Context, msg: &Message) -> CommandResult {
-    msg.reply(ctx, "Pong!")?;
-    Ok(())
-}
 
 fn main() {
     dotenv::dotenv().ok();
@@ -31,7 +18,10 @@ fn main() {
     let mut client = Client::new(&token, Handler).expect("Error creating client");
 
     client.with_framework(StandardFramework::new()
-        .configure(|c| c.prefix("!"))
+        .configure(|c| c
+            .prefixes(vec!["praise!", "!"])
+            .with_whitespace(true)
+        )
         .before(|_ctx, msg, command_name| {
             println!("==> IN '{}' FROM '{}'", command_name, msg.author.name);
             true
@@ -42,7 +32,9 @@ fn main() {
                 Err(e) => println!("<=/= OUT '{}' ERROR: {:?}", command_name, e),
             }
         })
-        .group(&GENERAL_GROUP));
+        .group(&utils::UTILS_GROUP)
+        .group(&math::MATH_GROUP)
+    );
 
 
     if let Err(e) = client.start() {
