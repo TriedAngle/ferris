@@ -1,13 +1,9 @@
-use serenity::model::channel::{Message, Embed};
-use serenity::prelude::{Context};
 use serenity::framework::standard::{
+    macros::{command, group},
     CommandResult,
-    macros::{
-        command,
-        group
-    }
 };
-use serenity::utils::MessageBuilder;
+use serenity::model::channel::Message;
+use serenity::prelude::Context;
 
 #[group]
 #[commands(ping, ferris)]
