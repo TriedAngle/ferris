@@ -32,7 +32,18 @@ fn main() {
 
     client.with_framework(StandardFramework::new()
         .configure(|c| c.prefix("!"))
+        .before(|_ctx, msg, command_name| {
+            println!("==> IN '{}' FROM '{}'", command_name, msg.author.name);
+            true
+        })
+        .after(|_ctx, msg, command_name, error| {
+            match error {
+                Ok(()) => println!("<== OUT '{}' FROM '{}'", command_name, msg.author.name),
+                Err(e) => println!("<=/= OUT '{}' ERROR: {:?}", command_name, e),
+            }
+        })
         .group(&GENERAL_GROUP));
+
 
     if let Err(e) = client.start() {
         println!("Client error: {:?}", e);
