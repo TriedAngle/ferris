@@ -187,6 +187,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
+name = "ferris"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "serenity",
+]
+
+[[package]]
 name = "flate2"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -886,14 +894,6 @@ dependencies = [
  "ring",
  "sct",
  "webpki",
-]
-
-[[package]]
-name = "rusty_ferris"
-version = "0.1.0"
-dependencies = [
- "dotenv",
- "serenity",
 ]
 
 [[package]]
