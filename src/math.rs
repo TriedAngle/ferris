@@ -6,72 +6,19 @@ use serenity::framework::standard::{CommandResult, Args, macros::{
 }};
 
 #[group]
-#[prefix = "math!"]
-#[commands(add, sub, mul, div, custom)]
+#[commands(math)]
 struct Math;
 
 #[command]
-fn add(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
-    let first = args.single::<f64>()?;
-    let second = args.single::<f64>()?;
+fn math(ctx: &mut Context, msg: &Message, args: Args) -> CommandResult {
+    let result = meval::eval_str(&args.message());
 
-    let res = first + second;
+    let answer = match result {
+        Ok(result) => result.to_string(),
+        Err(e) => format!("Error: {:?}", e),
+    };
 
-    if let Err(e) = msg.channel_id.say(&ctx.http, &res.to_string()) {
-        println!("Err sending product of {} and {}: {:?}", first, second, e);
-    }
-
-    Ok(())
-}
-
-#[command]
-fn sub(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
-    let first = args.single::<f64>()?;
-    let second = args.single::<f64>()?;
-
-    let res = first - second;
-
-    if let Err(e) = msg.channel_id.say(&ctx.http, &res.to_string()) {
-        println!("Err sending product of {} and {}: {:?}", first, second, e);
-    }
-
-    Ok(())
-}
-
-#[command]
-fn mul(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
-    let first = args.single::<f64>()?;
-    let second = args.single::<f64>()?;
-
-    let res = first * second;
-
-    if let Err(e) = msg.channel_id.say(&ctx.http, &res.to_string()) {
-        println!("Err sending product of {} and {}: {:?}", first, second, e);
-    }
-
-    Ok(())
-}
-
-#[command]
-fn div(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
-    let first = args.single::<f64>()?;
-    let second = args.single::<f64>()?;
-
-    let res = first / second;
-
-    if let Err(e) = msg.channel_id.say(&ctx.http, &res.to_string()) {
-        println!("Err sending product of {} and {}: {:?}", first, second, e);
-    }
-
-    Ok(())
-}
-
-#[command]
-fn custom(ctx: &mut Context, msg: &Message, mut args: Args) -> CommandResult {
-    let res = &msg.content;
-    if let Err(e) = msg.channel_id.say(&ctx.http,
-                                       format!("{} \n {:?}", &res.to_string(), &args.message()),
-    ) {
+    if let Err(e) = msg.channel_id.say(&ctx.http, answer) {
         println!("{:?}", e);
     }
 
