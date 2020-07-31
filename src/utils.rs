@@ -2,8 +2,9 @@ use serenity::framework::standard::{
     macros::{command, group},
     CommandResult,
 };
+use serenity::Result as SerenityResult;
 use serenity::model::channel::Message;
-use serenity::prelude::Context;
+use serenity::prelude::{Context};
 
 #[group]
 #[commands(ping, ferris)]
@@ -26,4 +27,10 @@ fn ferris(ctx: &mut Context, msg: &Message) -> CommandResult {
     }
 
     Ok(())
+}
+
+pub fn check_msg(result: SerenityResult<Message>) {
+    if let Err(why) = result {
+        println!("Error sending message: {:?}", why);
+    }
 }

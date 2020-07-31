@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 dotenv = "0.15.0"
-serenity = "0.8.6"
+serenity = { version = "0.8.6", features = ["cache", "framework", "standard_framework", "voice", "http", "rustls_backend"] }
 meval = "0.2"

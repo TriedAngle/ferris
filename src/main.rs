@@ -1,27 +1,27 @@
 use dotenv;
-use serenity::client::{Client, Context};
+use std::{sync::Arc};
+use serenity::client::{Client, Context, bridge::voice::ClientVoiceManager};
 use serenity::framework::standard::StandardFramework;
 use serenity::model::channel::Message;
-use serenity::prelude::EventHandler;
+use serenity::prelude::{EventHandler, Mutex, TypeMapKey};
 
 mod math;
 mod memes;
 mod utils;
+mod language_filter;
+mod voice;
+
+struct VoiceManager;
+
+impl TypeMapKey for VoiceManager {
+    type Value = Arc<Mutex<ClientVoiceManager>>;
+}
 
 struct Handler;
 
 impl EventHandler for Handler {
     fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == "lol no generics" {
-            if let Err(e) = msg.channel_id.send_message(&ctx.http, |m| {
-                m.embed(|e| {
-                    e.title("stop swearing! (sometimes even the truth may be swearing)")
-                        .image("https://www.dropbox.com/s/hz23pzn8ur1mao6/mad-rustacean.png?dl=1")
-                })
-            }) {
-                println!("Error sending message: {:?}", e);
-            }
-        }
+        language_filter::check(&ctx, &msg);
     }
 }
 
@@ -29,6 +29,11 @@ fn main() {
     dotenv::dotenv().ok();
     let token = dotenv::var("DISCORD_TOKEN").expect("Token must be supplied!");
     let mut client = Client::new(&token, Handler).expect("Error creating client");
+
+    {
+        let mut data = client.data.write();
+        data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
+    }
 
     client.with_framework(
         StandardFramework::new()
@@ -42,7 +47,8 @@ fn main() {
                 Err(e) => println!("<=/= OUT '{}' ERROR: {:?}", command_name, e),
             })
             .group(&utils::UTILS_GROUP)
-            .group(&math::MATH_GROUP),
+            .group(&math::MATH_GROUP)
+            .group(&voice::MUSIC_GROUP),
     );
 
     if let Err(e) = client.start() {
