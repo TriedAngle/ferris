@@ -18,7 +18,7 @@ async fn math(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Err(e) => format!("Error: {:?}", e),
     };
 
-    let _ = msg.reply(&ctx.http, answer).await.unwrap();
+    msg.reply(&ctx.http, answer).await?;
 
     Ok(())
 }
