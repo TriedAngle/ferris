@@ -1,3 +1,4 @@
+use crate::converter::{ConnectionPool, ReqwestClient, ShardManagerContainer};
 use serenity::async_trait;
 use serenity::client::{Context, EventHandler};
 use serenity::framework::standard::macros::help;
@@ -8,16 +9,15 @@ use serenity::framework::StandardFramework;
 use serenity::http::Http;
 use serenity::model::channel::{Message, Reaction, ReactionType};
 use serenity::model::gateway::Ready;
+use serenity::model::id::UserId;
 use serenity::Client;
 use std::collections::HashSet;
-use crate::converter::{ConnectionPool, ReqwestClient, ShardManagerContainer};
-use serenity::model::id::UserId;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
+mod commands;
 mod converter;
 mod helpers;
-mod commands;
 mod requests;
 
 #[help]

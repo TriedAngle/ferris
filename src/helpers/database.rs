@@ -1,5 +1,5 @@
 use serenity::framework::standard::CommandResult;
-use sqlx::postgres::{PgPoolOptions, PgPool};
+use sqlx::postgres::{PgPool, PgPoolOptions};
 
 pub async fn get_db_pool(db_address: String) -> CommandResult<PgPool> {
     let connection_string = &db_address;
