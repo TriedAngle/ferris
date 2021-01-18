@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 dotenv = "0.15.0"
-serenity = { version = "0.8.6", features = ["cache", "framework", "standard_framework", "voice", "http", "rustls_backend"] }
-meval = "0.2"
+serenity = { version = "0.10", features = ["framework", "standard_framework", "rustls_backend", "collector", "http", "model", "utils", "builder", "cache", "client", "voice"] }
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+meval = "0.2.0"

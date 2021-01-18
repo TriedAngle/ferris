@@ -1,57 +1,77 @@
 use dotenv;
-use std::{sync::Arc};
-use serenity::client::{Client, Context, bridge::voice::ClientVoiceManager};
-use serenity::framework::standard::StandardFramework;
+use serenity::async_trait;
+use serenity::client::{Context, EventHandler};
+use serenity::framework::standard::macros::help;
+use serenity::framework::standard::{
+    help_commands, Args, CommandGroup, CommandResult, HelpOptions,
+};
+use serenity::framework::StandardFramework;
+use serenity::http::Http;
 use serenity::model::channel::Message;
-use serenity::prelude::{EventHandler, Mutex, TypeMapKey};
+use serenity::model::gateway::Ready;
+use serenity::model::id::UserId;
+use serenity::Client;
+use std::collections::HashSet;
 
 mod math;
-mod memes;
 mod utils;
-mod language_filter;
-mod voice;
 
-struct VoiceManager;
-
-impl TypeMapKey for VoiceManager {
-    type Value = Arc<Mutex<ClientVoiceManager>>;
+#[help]
+async fn my_help(
+    context: &Context,
+    msg: &Message,
+    args: Args,
+    help_options: &'static HelpOptions,
+    groups: &[&'static CommandGroup],
+    owners: HashSet<UserId>,
+) -> CommandResult {
+    let _ = help_commands::with_embeds(context, msg, args, &help_options, groups, owners).await;
+    Ok(())
 }
 
 struct Handler;
 
+#[async_trait]
 impl EventHandler for Handler {
-    fn message(&self, ctx: Context, msg: Message) {
-        language_filter::check(&ctx, &msg);
+    // async fn message(&self, ctx: Context, msg: Message) {
+    //     language_filter::check(&ctx, &msg);
+    // }
+
+    async fn ready(&self, _: Context, ready: Ready) {
+        println!("{} is connected!", ready.user.name);
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     dotenv::dotenv().ok();
     let token = dotenv::var("DISCORD_TOKEN").expect("Token must be supplied!");
-    let mut client = Client::new(&token, Handler).expect("Error creating client");
 
-    {
-        let mut data = client.data.write();
-        data.insert::<VoiceManager>(Arc::clone(&client.voice_manager));
-    }
+    let http = Http::new_with_token(&token);
 
-    client.with_framework(
-        StandardFramework::new()
-            .configure(|c| c.prefixes(vec!["praise!", "!"]).with_whitespace(true))
-            .before(|_ctx, msg, command_name| {
-                println!("==> IN '{}' FROM '{}'", command_name, msg.author.name);
-                true
-            })
-            .after(|_ctx, msg, command_name, error| match error {
-                Ok(()) => println!("<== OUT '{}' FROM '{}'", command_name, msg.author.name),
-                Err(e) => println!("<=/= OUT '{}' ERROR: {:?}", command_name, e),
-            })
-            .group(&utils::UTILS_GROUP)
-            .group(&math::MATH_GROUP)
-            .group(&voice::MUSIC_GROUP),
-    );
+    let bot_id = match http.get_current_application_info().await {
+        Ok(info) => info.id,
+        Err(err) => panic!("Could not access application info: {:?}", err),
+    };
 
-    if let Err(e) = client.start() {
+    let framework = StandardFramework::new()
+        .configure(|c| {
+            c.with_whitespace(true)
+                .prefixes(vec!["praise!", "!"])
+                .on_mention(Some(bot_id))
+                .delimiters(vec![", ", ","])
+        })
+        .help(&MY_HELP)
+        .group(&utils::UTILS_GROUP)
+        .group(&math::MATH_GROUP);
+
+    let mut client = Client::builder(&token)
+        .event_handler(Handler)
+        .framework(framework)
+        .await
+        .expect("Error creating client");
+
+    if let Err(e) = client.start().await {
         println!("Client error: {:?}", e);
     }
 }
