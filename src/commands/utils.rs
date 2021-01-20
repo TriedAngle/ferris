@@ -1,17 +1,10 @@
-use serenity::framework::standard::{
-    macros::{command, group},
-    CommandResult,
-};
+use serenity::framework::standard::{macros::command, CommandResult};
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
 use serenity::utils::Color;
 
-#[group]
-#[commands(ping, ferris)]
-struct Utils;
-
 #[command]
-async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
     let time = msg.timestamp.timestamp_millis();
     let current = chrono::Utc::now().timestamp_millis();
     msg.channel_id
@@ -27,7 +20,7 @@ async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
 }
 
 #[command]
-async fn ferris(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn ferris(ctx: &Context, msg: &Message) -> CommandResult {
     let _ = msg
         .channel_id
         .send_message(&ctx.http, |m| {

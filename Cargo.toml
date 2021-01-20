@@ -19,9 +19,10 @@ meval = "0.2.0"
 chrono ="0.4.19"
 
 [dependencies.serenity]
-version = "0.10.2"
+git = "https://github.com/serenity-rs/serenity"
+branch = "current"
 default-features = true
-features = ["model", "collector", "native_tls_backend"]
+features = ["model", "collector", "native_tls_backend", "cache"]
 
 [dependencies.sqlx]
 git = "https://github.com/ant32/sqlx"
