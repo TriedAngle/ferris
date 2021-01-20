@@ -112,8 +112,6 @@ async fn new(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         }
     };
 
-    println!("{}", &emoji_string);
-
     let reaction_emoji = generate_emoji(&emoji_string);
 
     let storage = WizardIntermediate {
@@ -210,8 +208,6 @@ async fn remove(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let reaction_emoji = generate_emoji(&emoji_string);
 
     let emoji = reaction_emoji.emoji.unwrap();
-
-    println!("{}", emoji_string);
 
     let reaction_type = if reaction_emoji.animated.is_some() && reaction_emoji.name.is_some() {
         ReactionType::Custom {
@@ -603,8 +599,6 @@ async fn add_reaction(ctx: &Context, msg: &Message, storage: WizardIntermediate)
     let check = sqlx::query!("SELECT EXISTS(SELECT 1 FROM reaction_roles WHERE message_id = $1 AND role_id = $2 AND emoji = $3)",
             msg_id as i64, role_id.0 as i64, emoji.to_string())
         .fetch_one(&pool).await?;
-
-    println!("check: {:?}", check);
 
     if check.exists.unwrap() {
         msg.channel_id

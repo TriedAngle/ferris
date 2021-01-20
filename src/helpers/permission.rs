@@ -18,7 +18,7 @@ pub async fn check_administrator(
             return Ok(false);
         }
     };
-    println!("{:?}", permissions);
+
     if permissions.administrator() {
         Ok(true)
     } else {
