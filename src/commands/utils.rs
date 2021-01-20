@@ -1,17 +1,19 @@
+use chrono::{Duration, Utc};
 use serenity::framework::standard::{macros::command, CommandResult};
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
 use serenity::utils::Color;
+use std::time::{Instant, SystemTime};
 
 #[command]
 pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-    let time = msg.timestamp.timestamp_millis();
-    let current = chrono::Utc::now().timestamp_millis();
+    let sent = msg.timestamp;
+    let ping = Utc::now().timestamp_millis() - sent.timestamp_millis();
     msg.channel_id
         .send_message(ctx, |m| {
             m.embed(|e| {
                 e.title("pong!")
-                    .description(format!("⌛ {:?}", current - time))
+                    .description(format!("⌛ {:?}", ping))
                     .color(Color::DARK_GREEN)
             })
         })
