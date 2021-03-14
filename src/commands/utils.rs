@@ -1,9 +1,8 @@
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use serenity::framework::standard::{macros::command, CommandResult};
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
 use serenity::utils::Color;
-use std::time::{Instant, SystemTime};
 
 #[command]
 pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {

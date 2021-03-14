@@ -7,6 +7,7 @@
 - [x] praising rust
 - [x] test ping
 - [x] role selection board | TODO: Add full bot managed board
+- [ ] implement `shess` library
 - [ ] clearing channels
 - [ ] emoji requests
 - [ ] memes (xkcd, reddit, twitter)
