@@ -15,7 +15,7 @@ pub async fn get_db_pool(db_address: String) -> CommandResult<PgPool> {
 
 pub async fn add_guild(pool: &PgPool, guild_id: GuildId, is_new: bool) -> CommandResult {
     let exists = sqlx::query!(
-        "SELECT EXISTS(SELECT 1 FROM guild_info WHERE guild_id = $1)",
+        "SELECT EXISTS(SELECT 1 FROM guild_infos WHERE guild_id = $1)",
         guild_id.0 as i64
     )
     .fetch_one(pool)
@@ -23,7 +23,7 @@ pub async fn add_guild(pool: &PgPool, guild_id: GuildId, is_new: bool) -> Comman
 
     if is_new || !exists.exists.unwrap() {
         sqlx::query!(
-            "INSERT INTO guild_info VALUES($1) ON CONFLICT DO NOTHING",
+            "INSERT INTO guild_infos VALUES($1) ON CONFLICT DO NOTHING",
             guild_id.0 as i64
         )
         .execute(pool)
@@ -35,7 +35,7 @@ pub async fn add_guild(pool: &PgPool, guild_id: GuildId, is_new: bool) -> Comman
 
 pub async fn delete_guild(pool: &PgPool, guild_id: GuildId) -> CommandResult {
     sqlx::query!(
-        "DELETE FROM guild_info WHERE guild_id = $1",
+        "DELETE FROM guild_infos WHERE guild_id = $1",
         guild_id.0 as i64
     )
     .execute(pool)

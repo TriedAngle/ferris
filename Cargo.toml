@@ -17,6 +17,8 @@ dashmap = "4.0.2"
 reqwest = "0.11.2"
 meval = "0.2.0"
 chrono = "0.4.19"
+shess = {version = "0.1.5", features = ["discord"]}
+uuid = { version = "0.8.2", features = ["v4", "serde"] }
 
 [dependencies.serenity]
 git = "https://github.com/serenity-rs/serenity"

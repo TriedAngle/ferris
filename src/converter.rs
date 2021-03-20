@@ -1,3 +1,4 @@
+use crate::types::Shessy;
 use reqwest::Client;
 use serenity::client::bridge::gateway::ShardManager;
 use serenity::prelude::TypeMapKey;
@@ -11,6 +12,8 @@ pub struct ReqwestClient;
 
 pub struct ShardManagerContainer;
 
+pub struct ShessManager;
+
 impl TypeMapKey for ConnectionPool {
     type Value = PgPool;
 }
@@ -21,4 +24,8 @@ impl TypeMapKey for ReqwestClient {
 
 impl TypeMapKey for ShardManagerContainer {
     type Value = Arc<Mutex<ShardManager>>;
+}
+
+impl TypeMapKey for ShessManager {
+    type Value = Arc<Mutex<Shessy>>;
 }

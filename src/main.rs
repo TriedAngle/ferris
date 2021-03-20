@@ -1,4 +1,5 @@
-use crate::converter::{ConnectionPool, ReqwestClient, ShardManagerContainer};
+use crate::converter::{ConnectionPool, ReqwestClient, ShardManagerContainer, ShessManager};
+use crate::types::Shessy;
 use serenity::async_trait;
 use serenity::client::bridge::gateway::GatewayIntents;
 use serenity::client::{Context, EventHandler};
@@ -16,11 +17,13 @@ use serenity::Client;
 use std::collections::HashSet;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 mod commands;
 mod converter;
 mod helpers;
 mod requests;
+mod types;
 
 #[help]
 async fn my_help(
@@ -140,7 +143,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .help(&MY_HELP)
         .group(&commands::GENERAL_GROUP)
         .group(&commands::UTILITY_GROUP)
-        .group(&commands::ADMIN_GROUP);
+        .group(&commands::ADMIN_GROUP)
+        .group(&commands::GAME_GROUP);
 
     let mut client = Client::builder(&config.token)
         .framework(framework)
@@ -160,6 +164,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     {
         let mut data = client.data.write().await;
         data.insert::<ShardManagerContainer>(Arc::clone(&client.shard_manager));
+        data.insert::<ShessManager>(Arc::new(Mutex::new(Shessy::new())));
         data.insert::<ConnectionPool>(pool);
         data.insert::<ReqwestClient>(Arc::new(reqwest_client));
     }
