@@ -4,7 +4,8 @@ use serenity::client::Context;
 use serenity::framework::standard::macros::command;
 use serenity::framework::standard::{Args, CommandResult};
 use serenity::model::channel::Message;
-use shess::{defaults::normal::Default8x8, discord::Discord, Game as ShessGame, Backend};
+use serenity::utils::{Color, MessageBuilder};
+use shess::{defaults::normal::Default8x8, discord::Discord, Backend, Game as ShessGame, Mode};
 use sqlx::postgres::PgRow;
 use sqlx::{PgPool, Row};
 use uuid::Uuid;
@@ -240,8 +241,11 @@ pub async fn start(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         }
 
         let mut shess_game = ShessGame::<Default8x8, Discord>::new();
-        shess_game.backend.set_player(shess_game.players[0].id, game.players[0]);
-        shess_game.backend.set_player(shess_game.players[1].id, game.players[1]);
+
+        shess_game.backend.set_player(0, game.players[0]);
+        shess_game.backend.set_player(1, game.players[1]);
+
+        let mut board = shess_game.mode.rendered_board();
 
         lock.default_games.insert(game.id, shess_game);
 
@@ -256,6 +260,16 @@ pub async fn start(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         .execute(&pool)
         .await
         .unwrap();
+
+        msg.channel_id
+            .send_message(ctx, |m| {
+                m.embed(|e| {
+                    e.title("Shess")
+                        .description(format!("{}", board))
+                        .color(Color::ORANGE)
+                })
+            })
+            .await?;
     }
 
     msg.reply(&ctx.http, format!("Successfully started game"))
@@ -292,8 +306,8 @@ pub async fn play(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             "#,
             channel_id
         )
-            .fetch_one(&pool)
-            .await;
+        .fetch_one(&pool)
+        .await;
 
         if rec.is_err() {
             msg.reply(&ctx.http, format!("This channel has no running game"))
@@ -311,33 +325,50 @@ pub async fn play(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         };
 
         if !game.running {
-            msg.reply(&ctx.http, format!("Game is not running"))
-                .await?;
+            msg.reply(&ctx.http, format!("Game is not running")).await?;
             return Ok(());
         }
 
-        for (key, value) in &lock.default_games {
-            println!("{}: {:?}", key, value.players);
+        let mut shess_game = None;
+
+        for (key, value) in &mut lock.default_games {
+            if *key == game.id {
+                shess_game = Some(value);
+            }
+        }
+        if shess_game.is_none() {
+            msg.reply(&ctx.http, format!("Game is not running")).await?;
+            return Ok(());
         }
 
-        let shess_game = lock.default_by_uuid(&game.id);
+        let mut shess_game = shess_game.unwrap();
         let current_player = shess_game.current_player.0;
-        let player_id = shess_game.backend.player_discord.get(&current_player).unwrap();
+        let player_id = shess_game.backend.player_to_backend(current_player);
 
         let user_id = get_or_create_user_id(msg.author.id.0.to_string(), &pool).await;
-        if *player_id != user_id {
+        if player_id != user_id {
             msg.reply(&ctx.http, format!("This is not your turn"))
                 .await?;
             return Ok(());
         }
 
         let input = args.message().to_string();
+
         shess_game.backend.send(input).unwrap();
-
         shess_game.next_move();
-    }
 
-    msg.delete(&ctx.http).await?;
+        let board = shess_game.mode.rendered_board();
+
+        msg.channel_id
+            .send_message(ctx, |m| {
+                m.embed(|e| {
+                    e.title("Shess")
+                        .description(format!("{}", board))
+                        .color(Color::ORANGE)
+                })
+            })
+            .await?;
+    }
 
     Ok(())
 }

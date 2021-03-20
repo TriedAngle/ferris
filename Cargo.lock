@@ -550,9 +550,9 @@ dependencies = [
 
 [[package]]
 name = "glucose"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2274b256830c9513fa6626b3756403d37a44f0596b733f61d869c62f573eaf3"
+checksum = "a03698480dc6af4c2ae4953c59347d84abfe143ef545cd5780d908e3dc0af5de"
 dependencies = [
  "fructose",
  "paste",
@@ -1613,9 +1613,9 @@ dependencies = [
 
 [[package]]
 name = "shess"
-version = "0.1.5"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b998aa5659ce47eb6046e8d7c84b3e1fd2c91010c2b22d2253b828c40c446970"
+checksum = "d0c9e0f79157a3755dcfbb4868e3d0733b6e41a62add3ee48d658a962487a01d"
 dependencies = [
  "fructose",
  "glucose",

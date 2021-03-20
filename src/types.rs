@@ -17,12 +17,8 @@ impl Shessy {
         }
     }
 
-    pub fn default_by_uuid(&mut self, uuid: &Uuid) -> &mut ShessGame<Default8x8, Discord> {
-        if self.default_games.contains_key(uuid) {
-            self.default_games.get_mut(uuid).unwrap()
-        } else {
-            panic!()
-        }
+    pub fn default_by_uuid(&mut self, uuid: Uuid) -> &mut ShessGame<Default8x8, Discord> {
+        self.default_games.get_mut(&uuid).unwrap()
     }
 
     pub fn delete_default_by_uuid(&mut self, uuid: &Uuid) -> bool {
