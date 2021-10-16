@@ -1,4 +1,3 @@
-pub mod config;
 pub mod database;
 pub mod getters;
 pub mod permission;

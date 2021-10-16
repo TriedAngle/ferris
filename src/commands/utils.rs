@@ -6,13 +6,28 @@ use serenity::utils::Color;
 
 #[command]
 pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-    let sent = msg.timestamp;
-    let ping = Utc::now().timestamp_millis() - sent.timestamp_millis();
+    let start = msg.timestamp;
+
+    let back = msg
+        .channel_id
+        .send_message(ctx, |m| {
+            m.embed(|e| e.title("Loading...").color(Color::DARK_ORANGE))
+        })
+        .await?;
+
+    let stop = back.timestamp;
+
+    back.delete(&ctx.http).await?;
+
+    info!("datetime start: {:?}", start);
+    info!("datetime stop: {:?}", stop);
+    let ping = stop - start;
+
     msg.channel_id
         .send_message(ctx, |m| {
             m.embed(|e| {
                 e.title("pong!")
-                    .description(format!("⌛ {:?}", ping))
+                    .description(format!("⌛ {}ms", ping.num_milliseconds()))
                     .color(Color::DARK_GREEN)
             })
         })

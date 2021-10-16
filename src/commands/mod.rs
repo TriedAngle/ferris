@@ -1,20 +1,20 @@
-pub mod chess;
+// pub mod chess;
+pub mod code;
 pub mod math;
-pub mod reaction_roles;
 pub mod utils;
 
-use chess::*;
+// use chess::*;
+use code::*;
 use math::*;
-use reaction_roles::*;
 use serenity::framework::standard::macros::group;
 use utils::*;
 
 #[group("general")]
-#[commands(math)]
+#[commands(math, code)]
 pub struct General;
 
 #[group("admin")]
-#[commands(reactionrole)]
+// #[commands(reactionrole)]
 pub struct Admin;
 
 #[group("utility")]
@@ -22,5 +22,5 @@ pub struct Admin;
 pub struct Utility;
 
 #[group("game")]
-#[commands(create, stop, start, join, play)]
+// #[commands(create, stop, start, join, play)]
 pub struct Game;
